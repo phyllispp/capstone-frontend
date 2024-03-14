@@ -1,12 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BASE_URL } from "./Constant";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
 export default function Search() {
   const [selectedCategoryId, setSelectedCategoryId] = useState(1);
-  const [distance, setDistance] = useState(10);
+  const MAX_DISTANCE = 20;
+  const [distance, setDistance] = useState(MAX_DISTANCE);
 
   const fetcher = async (url) => (await axios.get(url)).data;
 
@@ -18,7 +19,13 @@ export default function Search() {
     enabled: !!selectedCategoryId,
   });
 
-  // maybe only show the sellers who have baskets?
+  //filter sellers by distance
+  const filteredSellers = sellers?.data?.filter(
+    (store) =>
+      distance === MAX_DISTANCE ||
+      (store.distance / 1000).toFixed(1) <= distance
+  );
+  console.log(filteredSellers);
 
   // change categoryId with button click
   const handleCategoryClick = (categoryId) => {
@@ -27,27 +34,21 @@ export default function Search() {
 
   console.log(sellers.data);
 
-  // //get the user's location
-  // const [location, setLocation] = useState(null);
-
-  // useEffect(()=>{
-  //   const getLocation=()=>{
-  //     if (navigator.geolocation){
-  //       navigator.geolocation.getCurrentPosition(
-  //         (position)=>{
-  //           const userLocation = {
-  //             type: "Point",
-  //             coordinates: [
-  //               position.coords.longitude,
-  //               position.coords.latitude,
-  //             ],
-  //           };
-  //           setLocation(userLocation);
-  //         }
-  //       )
-  //     }
-  //   }
-  // })
+  //get the user's location
+  useEffect(() => {
+    const getLocation = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          const userLocation = {
+            type: "Point",
+            coordinates: [position.coords.longitude, position.coords.latitude],
+          };
+          console.log(userLocation);
+        });
+      }
+    };
+    getLocation();
+  }, []);
 
   return (
     <>
@@ -95,7 +96,7 @@ export default function Search() {
       {/* sellers */}
       {/* seller detail and rating when users click */}
       {/* ability for users to add seller to favorite */}
-      {sellers?.data?.map((seller) => (
+      {filteredSellers?.map((seller) => (
         <div key={seller.id}>
           <div className="flex items-center p-2">
             <img
@@ -104,6 +105,9 @@ export default function Search() {
               className="w-12 h-12 rounded-full object-cover mr-4"
             />
             <p className="text-sm font-semibold">{seller.name}</p>
+            <p className="text-sm font-semibold">
+              {(seller.distance / 1000).toFixed(1)} km
+            </p>
           </div>
           {/* food listing */}
           <ul>

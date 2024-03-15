@@ -19,7 +19,7 @@ export default function Search() {
     enabled: !!selectedCategoryId,
   });
 
-  //filter sellers by distance
+  // filter sellers by distance
   const filteredSellers = sellers?.data?.filter(
     (store) =>
       distance === MAX_DISTANCE ||
@@ -34,7 +34,7 @@ export default function Search() {
 
   console.log(sellers.data);
 
-  //get the user's location
+  // get the user's location
   useEffect(() => {
     const getLocation = () => {
       if (navigator.geolocation) {
@@ -80,7 +80,7 @@ export default function Search() {
       </div>
       {/* range slider */}
       <div className="flex items-center py-4">
-        <label htmlFor="distance" className="mr-2">
+        <label htmlFor="distance" className="mr-2 text-xs">
           Distance:
         </label>
         <input
@@ -91,24 +91,24 @@ export default function Search() {
           onChange={(e) => setDistance(parseInt(e.target.value))}
           className="w-64"
         />
-        <span className="ml-2">{distance} km</span>
+        <span className="ml-2 text-xs">{distance} km</span>
       </div>
       {/* sellers */}
-      {/* seller detail and rating when users click */}
-      {/* ability for users to add seller to favorite */}
       {filteredSellers?.map((seller) => (
         <div key={seller.id}>
-          <div className="flex items-center p-2">
-            <img
-              src={seller.photo}
-              alt="Seller Photo"
-              className="w-12 h-12 rounded-full object-cover mr-4"
-            />
-            <p className="text-sm font-semibold">{seller.name}</p>
-            <p className="text-sm font-semibold">
-              {(seller.distance / 1000).toFixed(1)} km
-            </p>
-          </div>
+          <Link to={`/search/seller/${seller.id}`}>
+            <div className="flex items-center p-2">
+              <img
+                src={seller.photo}
+                alt="Seller Photo"
+                className="w-12 h-12 rounded-full object-cover mr-4"
+              />
+              <p className="text-sm font-semibold">{seller.name}</p>
+              <p className="text-xs font-light mx-4">
+                {(seller.distance / 1000).toFixed(1)} km away
+              </p>
+            </div>
+          </Link>
           {/* food listing */}
           <ul>
             {seller.baskets?.map((basket) => (

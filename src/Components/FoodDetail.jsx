@@ -95,7 +95,7 @@ export default function FoodDetail({ userId }) {
             className="bg-[#F59F50] text-white py-2 px-4 rounded-full"
             onClick={handleAddToCart}
           >
-            Reserve
+            Place Order
           </button>
         </div>
       ))}

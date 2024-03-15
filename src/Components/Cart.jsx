@@ -1,10 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BASE_URL } from "./Constant";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { formatDate } from "./dateUtils";
 
 export default function Cart({ userId }) {
   const fetcher = async (url) => (await axios.get(url)).data;
+  const navigate = useNavigate();
 
   // retrieve item in cart
   const cartItems = useQuery({
@@ -33,12 +35,6 @@ export default function Cart({ userId }) {
 
   return (
     <>
-      <Link
-        to="/search"
-        className="absolute top-0 left-0 p-4 text-[#F59F50] font-medium"
-      >
-        &larr; Back
-      </Link>
       {/* title */}
       <div className="text-2xl flex justify-center">
         <div>
@@ -50,21 +46,59 @@ export default function Cart({ userId }) {
       </div>
       <br />
       {cartItems.data && cartItems.data.length > 0 ? (
-        <>
-          <p>Your total would be: ${totalPrice}</p>
-          {/* map function */}
-          {/* <p>Item in your basket: ${cartItems.data.basket.title}</p> */}
-        </>
+        <div className="bg-[#EFEEDE] p-4 shadow rounded mb-4">
+          {cartItems.data.map((item) => (
+            <div key={item.basket.id}>
+              <img
+                src={item.basket.photo}
+                alt={item.basket.title}
+                className="object-cover h-48 w-96 my-5"
+              />
+              <p className="text-sm my-2">
+                Current item in your cart: {item.basket.title}
+              </p>
+              <p className="text-sm my-2">Your total would be: ${totalPrice}</p>
+              <div className="text-xs font-light my-2">
+                <p>
+                  Pick-up start time: {formatDate(item.basket.pickupStartTime)}
+                </p>
+                <p>Pick-up end time: {formatDate(item.basket.pickupEndTime)}</p>
+              </div>
+              <div className="flex justify-evenly my-5">
+                <button
+                  className="bg-[#E55555] text-white py-2 px-4 rounded-full"
+                  onClick={() => removeItem(item.basket.id)}
+                >
+                  Remove
+                </button>
+                <button
+                  className="bg-[#F59F50] text-white py-2 px-4 rounded-full"
+                  onClick={() => pay()}
+                >
+                  Checkout
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       ) : (
-        <div>Your cart is empty</div>
+        <>
+          <p className="text-[#AEAEAE] font-bold my-10">
+            Your cart is currently empty
+          </p>
+          <img
+            src="empty-cart.png"
+            alt="empty-cart"
+            className="object-scale-up h-48 w-48 mx-auto my-10"
+          />
+          <button
+            onClick={() => navigate(`/search`)}
+            className="bg-[#F59F50] text-white py-2 px-4 rounded-full"
+          >
+            Continue Shopping
+          </button>
+        </>
       )}
-      <br />
-      <button
-        className="bg-[#F59F50] text-white py-2 px-4 rounded-full"
-        onClick={() => pay()}
-      >
-        Checkout
-      </button>
     </>
   );
 }

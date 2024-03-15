@@ -132,7 +132,14 @@ export default function Home() {
           key={feed.id}
           className="bg-[#EFEEDE] rounded-lg shadow p-4 relative"
         >
-          {/* render seller photo and name */}
+          <div className="flex items-center mb-2">
+            <img
+              src={feed.seller.photo}
+              alt="feed"
+              className="w-8 h-8 rounded-full object-cover mr-4"
+            />
+            <p className="text-sm">{feed.seller.name}</p>
+          </div>
           {/* render feed photo */}
           <img src={feed.photo} alt="feed" className="w-full mb-4" />
           {/* render feed caption */}
@@ -159,15 +166,19 @@ export default function Home() {
           <div>
             {feed.comments &&
               feed.comments.map((comment) => (
-                <div key={comment.id} className="flex items-center">
+                <div
+                  key={comment.id}
+                  className="flex items-center justify-between"
+                >
                   <p className="text-sm font-thin text-left">
                     {comment.userId}: {comment.content}
                   </p>
                   <button
                     onClick={() => handleDeleteComment(feed.id, comment.id)}
-                    className="ml-2"
+                    className="text-xs text-[#E55555]"
+                    style={{ marginLeft: "auto" }}
                   >
-                    <img src="cross.png" alt="cross" className="h-2 w-2" />
+                    x
                   </button>
                 </div>
               ))}

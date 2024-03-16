@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BASE_URL } from "./Constant";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { formatDate } from "./dateUtils";
 
-export default function Home() {
+export default function Home({ userId }) {
   const fetcher = async (url) => (await axios.get(url)).data;
   const queryClient = useQueryClient();
 
@@ -14,98 +14,113 @@ export default function Home() {
     queryKey: ["feeds"],
     queryFn: () => fetcher(`${BASE_URL}/feed`),
   });
-  console.log("feeds", feeds, feeds.data);
+  console.log(feeds.data);
 
-  // retrieve seller data for feed (name and logo)
-
-  // like function
-  const handleLike = async (feedId) => {
-    console.log(`${feedId}: liked`);
-    const updatedFeeds = feeds.data.map((feed) => {
-      if (feed.id === feedId) {
-        return {
-          ...feed,
-          likes: feed.likes ? feed.likes + 1 : 1,
-        };
+  //post request to like a feed
+  const postRequest = async (url, data) => await axios.post(url, data);
+  const { mutate } = useMutation({
+    mutationFn: (feedId) =>
+      postRequest(`${BASE_URL}/feed/like`, {
+        userId: userId,
+        feedId: feedId,
+      }),
+    onSuccess: (res, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["feeds"] });
+      if (res.data.action === "liked") {
+        queryClient.setQueryData(["feeds"], (oldQueryData) => {
+          return oldQueryData.data.map((feed) => {
+            if (feed.id === variables.feedId) {
+              return {
+                ...feed,
+                feedLikes: [...feed.feedLikes, res.data.newLike],
+              };
+            }
+          });
+        });
+      } else if (res.action === "unliked") {
+        queryClient.setQueryData(["feeds"], (oldQueryData) => {
+          return oldQueryData.data.map((feed) => {
+            if (feed.id === variables.feedId) {
+              return {
+                ...feed,
+                feedLikes: feed.feedLikes.filter(
+                  (like) => like.id !== res.data.likeId
+                ),
+              };
+            }
+          });
+        });
       }
-      return feed;
-    });
-
-    // update state and re-render
-    queryClient.setQueryData(["feeds"], updatedFeeds);
-  };
-
-  // DOES NOT WORK YET
-  // retrieve comments from local storage
-  const [comments, setComments] = useState(() => {
-    const storedComments = localStorage.getItem("comments");
-    return storedComments ? JSON.parse(storedComments) : {};
+    },
   });
 
-  // save comments to local storage whenever it changes
-  useEffect(() => {
-    localStorage.setItem("comments", JSON.stringify(comments));
-  }, [comments]);
-
-  // comment function
-  const handleComment = (feedId) => {
-    console.log(`${feedId}: commented`);
-    // Create a new comment object
-    const newComment = {
-      id: Date.now(), // generate a unique identifier for the comment
-      userId: "user1", // replace with the actual user ID
-      content: comments[feedId],
-    };
-
-    // Find the feed in the data array
-    const updatedFeeds = feeds.data.map((feed) => {
-      if (feed.id === feedId) {
-        // Add the new comment to the comments array
-        return {
-          ...feed,
-          comments: [...(feed.comments || []), newComment],
-        };
-      }
-      return feed;
-    });
-
-    // Update the state and re-render
-    queryClient.setQueryData(["feeds"], updatedFeeds);
-
-    // Clear the comment input
-    setComments((prevComments) => ({
-      ...prevComments,
-      [feedId]: "",
-    }));
+  const handleLike = (feedId) => {
+    mutate(feedId);
   };
 
-  const handleInputChange = (event, feedId) => {
-    setComments((prevComments) => ({
-      ...prevComments,
-      [feedId]: event.target.value,
-    }));
+  //post request to insert a comment
+  const { mutate: commentFeed } = useMutation({
+    mutationFn: (formData) =>
+      postRequest(`${BASE_URL}/feed/comment`, {
+        formData,
+      }),
+    onSuccess: (res, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["feeds"] });
+      queryClient.setQueryData(["feeds"], (oldQueryData) => {
+        return oldQueryData.data.map((feed) => {
+          if (feed.id === variables.feedId) {
+            return {
+              ...feed,
+              feedReviews: [...feed.feedReviews, res.data.newComment],
+            };
+          }
+        });
+      });
+    },
+  });
+  const [comment, setComment] = useState({});
+  console.log(comment);
+
+  const handleCommentChange = (feedId, value) => {
+    setComment((prev) => ({ ...prev, [feedId]: value }));
   };
+
+  const handleSubmit = (feedId, e) => {
+    e.preventDefault();
+    const content = comment[feedId] || "";
+
+    commentFeed({ userId: userId, feedId: feedId, content: content });
+    setComment((prev) => ({ ...prev, [feedId]: "" }));
+  };
+
+  //delete a comment
+  const putRequest = async (url, data) => await axios.put(url, data);
+  const { mutate: deleteFeed } = useMutation({
+    mutationFn: (formData) =>
+      putRequest(`${BASE_URL}/feed/comment/delete`, formData),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["feeds"] });
+      queryClient.setQueryData(["feeds"], (oldQueryData) => {
+        console.log(variables);
+        console.log(variables.commentId);
+
+        return oldQueryData.data.map((feed) => {
+          if (feed.id === variables.feedId) {
+            return {
+              ...feed,
+              feedReviews: feed.feedReviews.filter(
+                (comment) => comment.id !== variables.commentId
+              ),
+            };
+          }
+        });
+      });
+    },
+  });
 
   const handleDeleteComment = (feedId, commentId) => {
-    // Find the feed in the data array
-    const updatedFeeds = feeds.data.map((feed) => {
-      if (feed.id === feedId) {
-        // Filter out the comment with the given commentId
-        const updatedComments = feed.comments.filter(
-          (comment) => comment.id !== commentId
-        );
-
-        // Update the comments array of the feed
-        return {
-          ...feed,
-          comments: updatedComments,
-        };
-      }
-      return feed;
-    });
-
-    // Update the state and re-render
-    queryClient.setQueryData(["feeds"], updatedFeeds);
+    deleteFeed({ feedId: feedId, commentId: commentId });
+    console.log(commentId);
   };
 
   return (
@@ -155,7 +170,7 @@ export default function Home() {
                 <img src="like.png" alt="like" className="h-8 w-8" />
               </button>
               <p className="text-gray-500 text-sm font-light">
-                {feed.likes || 0} Likes
+                {feed.feedLikes.length || 0} Likes
               </p>
             </div>
           </div>
@@ -164,12 +179,9 @@ export default function Home() {
             Comments:
           </p>
           <div>
-            {feed.comments &&
-              feed.comments.map((comment) => (
-                <div
-                  key={comment.id}
-                  className="flex items-center justify-between"
-                >
+            {feed.feedReviews &&
+              feed.feedReviews.map((comment) => (
+                <div key={comment.id} className="flex items-center">
                   <p className="text-sm font-thin text-left">
                     {comment.userId}: {comment.content}
                   </p>
@@ -183,17 +195,15 @@ export default function Home() {
                 </div>
               ))}
           </div>
+
           <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleComment(feed.id);
-            }}
+            onSubmit={(e) => handleSubmit(feed.id, e)}
             className="flex items-center"
           >
             <input
               type="text"
-              value={comments[feed.id] || ""}
-              onChange={(e) => handleInputChange(e, feed.id)}
+              value={comment[feed.id] || ""}
+              onChange={(e) => handleCommentChange(feed.id, e.target.value)}
               placeholder="Write a comment..."
               className="border border-gray-300 rounded-md p-1 mt-2 flex-grow mr-2 text-sm"
               style={{ width: "10rem" }}
@@ -201,7 +211,11 @@ export default function Home() {
             <button
               type="submit"
               className="bg-[#F59F50] py-1 px-3 rounded-md flex items-center"
-              style={{ width: "3rem", height: "2rem", marginTop: "0.4rem" }}
+              style={{
+                width: "3rem",
+                height: "2rem",
+                marginTop: "0.4rem",
+              }}
             >
               <img src="send.png" alt="send" className="h-6 w-6" />
             </button>

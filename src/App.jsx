@@ -35,7 +35,7 @@ function App() {
       path: "/",
       element: (
         <ProtectedRoute>
-          <Home />
+          <Home userId={userId} />
           <NavBar />
         </ProtectedRoute>
       ),

@@ -15,7 +15,7 @@ export default function Home({ userId, axios }) {
   });
   console.log(feeds.data);
 
-  //post request to like and unlike a feed
+  //post request to like a feed
   const postRequest = async (url, data) => await axios.post(url, data);
   const { mutate } = useMutation({
     mutationFn: (feedId) =>
@@ -57,7 +57,7 @@ export default function Home({ userId, axios }) {
     mutate(feedId);
   };
 
-  //post request to insert a comment
+  // post request to insert a comment
   const { mutate: commentFeed } = useMutation({
     mutationFn: (formData) =>
       postRequest(`${BASE_URL}/feed/comment`, {
@@ -92,7 +92,7 @@ export default function Home({ userId, axios }) {
     setComment((prev) => ({ ...prev, [feedId]: "" }));
   };
 
-  //delete a comment
+  // delete a comment
   const putRequest = async (url, data) => await axios.put(url, data);
   const { mutate: deleteFeed } = useMutation({
     mutationFn: (formData) =>
@@ -131,13 +131,12 @@ export default function Home({ userId, axios }) {
           <p className="text-[#9EB97D] italic">Rescue</p>
         </div>
       </div>
-      {/* favorites */}
-      {/* make favorites button scrollable */}
+      {/* favorites
       <Link to={`/favorites`}>
         <button className="fixed top-8 right-8 p-2">
           <img src="favorites.png" alt="favorites" className="h-8 w-8" />
         </button>
-      </Link>
+      </Link> */}
       {/* feed card */}
       {feeds?.data?.map((feed) => (
         <div

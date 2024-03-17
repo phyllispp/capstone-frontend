@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BASE_URL } from "./Constant";
+import { useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { formatDate } from "./dateUtils";
@@ -9,6 +10,10 @@ export default function FoodDetail({ userId }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const fetcher = async (url) => (await axios.get(url)).data;
+  const [errorNotification, setErrorNotification] = useState({
+    show: false,
+    message: "",
+  });
 
   const baskets = useQuery({
     queryKey: ["basket", `${BASE_URL}/category/${params.basketId}`],
@@ -17,7 +22,6 @@ export default function FoodDetail({ userId }) {
   console.log("baskets", baskets, baskets.data);
 
   // add a basket to cart
-  // how about the edge case where the user goes back and wants to add the same item to the basket through food detail?
 
   const postRequest = async (url, data) => await axios.post(url, data);
   const { mutate } = useMutation({
@@ -31,6 +35,13 @@ export default function FoodDetail({ userId }) {
         res.data
       );
       navigate(`/cart`);
+    },
+    onError: () => {
+      // Customize this message based on the error if needed
+      setErrorNotification({
+        show: true,
+        message: "You can only add items from one seller to the cart at a time",
+      });
     },
   });
 
@@ -62,6 +73,30 @@ export default function FoodDetail({ userId }) {
         </div>
       </div>
       <br />
+      {/* error notification */}
+      <div>
+        {errorNotification.show && (
+          <div
+            role="alert"
+            className="alert alert-error flex items-center bg-gray-100 border-gray-300 text-gray-800 p-4 rounded-lg shadow-md max-w-xs mx-auto my-4"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              className="stroke-current flex-shrink-0 w-6 h-6 mr-2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+            <span className="text-sm">{errorNotification.message}</span>
+          </div>
+        )}
+      </div>
       {/* food detail */}
       {baskets.data?.map((basket) => (
         <div key={basket.id} className="bg-[#EFEEDE] p-4 shadow rounded mb-4">

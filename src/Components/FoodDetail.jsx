@@ -106,16 +106,21 @@ export default function FoodDetail({ userId }) {
             className="object-cover h-48 w-96"
           />
           <div className="text-left">
-            <p className="text-lg font-semibold my-2">{basket.title}</p>
-            <div className="text-xs font-light my-1">
-              <p>
-                Pick-up: {formatDateTwo(basket.pickupStartTime)} to{" "}
-                {formatDateTwo(basket.pickupEndTime)}
-              </p>
+            <div className="flex justify-between items-center">
+              <p className="text-lg font-semibold my-2">{basket.title}</p>
+              <div className="text-sm my-2 ml-4">
+                <p className="line-through">${basket.originalPrice}</p>
+                <p>${basket.discountedPrice}</p>
+              </div>
             </div>
-            <div className="text-sm my-2">
-              <p className="line-through">${basket.originalPrice}</p>
-              <p>${basket.discountedPrice}</p>
+            <div className="flex items-center">
+              <img src="/clock.png" alt="clock" className="w-4 h-4 mb-2" />
+              <div className="text-xs font-light ml-2">
+                <p>
+                  Pick-up: {formatDateTwo(basket.pickupStartTime)} to{" "}
+                  {formatDateTwo(basket.pickupEndTime)}
+                </p>
+              </div>
             </div>
             <p className="font-semibold my-1">Product Description</p>
             <p className="text-sm">{basket.description}.</p>

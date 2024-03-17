@@ -15,7 +15,7 @@ export default function Home({ userId, axios }) {
   });
   console.log(feeds.data);
 
-  //post request to like and unlike a feed
+  //post request to like a feed
   const postRequest = async (url, data) => await axios.post(url, data);
   const { mutate } = useMutation({
     mutationFn: (feedId) =>

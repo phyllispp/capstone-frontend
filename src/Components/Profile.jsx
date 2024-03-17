@@ -13,4 +13,26 @@ export default function Profile({ userId }) {
   });
 
   console.log(orders.data);
+
+  return (
+    <div>
+      {orders.isLoading ? (
+        <p>Loading...</p>
+      ) : orders.isError ? (
+        <p>Error loading orders</p>
+      ) : (
+        orders?.data?.map((order) => (
+          <div key={order.id}>
+            <ul>
+              {order?.orderedItems?.map((item) => (
+                <div key={item.id}>
+                  <p>{item.basket.title}</p>
+                </div>
+              ))}
+            </ul>
+          </div>
+        ))
+      )}
+    </div>
+  );
 }

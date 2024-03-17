@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BASE_URL } from "./Constant";
 import axios from "axios";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { formatDate } from "./dateUtils";
+import { formatDateTwo } from "./dateUtilsTwo";
 
 export default function FoodDetail({ userId }) {
   const params = useParams();
@@ -73,13 +73,13 @@ export default function FoodDetail({ userId }) {
           <div className="text-left">
             <p className="text-lg font-semibold my-2">{basket.title}</p>
             <div className="text-xs font-light my-1">
-              <p>Pick-up start time: {formatDate(basket.pickupStartTime)}</p>
-              <p>Pick-up end time: {formatDate(basket.pickupEndTime)}</p>
+              <p>
+                Pick-up: {formatDateTwo(basket.pickupStartTime)} to{" "}
+                {formatDateTwo(basket.pickupEndTime)}
+              </p>
             </div>
             <div className="text-sm my-2">
-              <p>Original price:</p>
               <p className="line-through">${basket.originalPrice}</p>
-              <p>Discounted price:</p>
               <p>${basket.discountedPrice}</p>
             </div>
             <p className="font-semibold my-1">Product Description</p>

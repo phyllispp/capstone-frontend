@@ -4,7 +4,7 @@ import { BASE_URL } from "./Constant";
 import axios from "axios";
 import { useParams, useNavigate, Link } from "react-router-dom";
 
-export default function SellerProfile({ sellerId }) {
+export default function SellerProfile() {
   const params = useParams();
   const queryClient = useQueryClient();
   const navigate = useNavigate();

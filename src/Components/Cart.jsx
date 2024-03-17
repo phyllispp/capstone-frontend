@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BASE_URL } from "./Constant";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { formatDate } from "./dateUtils";
+import { formatDateTwo } from "./dateUtilsTwo";
 
 export default function Cart({ userId }) {
   const fetcher = async (url) => (await axios.get(url)).data;
@@ -62,37 +62,33 @@ export default function Cart({ userId }) {
         </div>
       </div>
       <br />
+      Copy
       {cartItems.data && cartItems.data.length > 0 ? (
-        <div className="bg-[#EFEEDE] p-4 shadow rounded mb-4">
+        <div className="flex items-start p-2 ml-2 bg-white shadow rounded mb-2">
           {cartItems.data.map((item) => (
-            <div key={item.basket.id}>
+            <div key={item.basket.id} className="flex items-center w-full">
               <img
                 src={item.basket.photo}
                 alt={item.basket.title}
-                className="object-cover h-48 w-96 my-5"
+                className="w-12 h-12 object-cover mr-2"
               />
-              <p className="text-sm my-2">
-                Current item in your cart: {item.basket.title}
-              </p>
-              <p className="text-sm my-2">Your total would be: ${totalPrice}</p>
-              <div className="text-xs font-light my-2">
-                <p>
-                  Pick-up start time: {formatDate(item.basket.pickupStartTime)}
-                </p>
-                <p>Pick-up end time: {formatDate(item.basket.pickupEndTime)}</p>
+              <div className="text-left flex-grow">
+                <p className="text-xs">{item.basket.title}</p>
+                <p className="text-xs">${totalPrice}</p>
+                <div className="text-xs font-light">
+                  <p>
+                    Pick-up: {formatDateTwo(item.basket.pickupStartTime)} to{" "}
+                    {formatDateTwo(item.basket.pickupEndTime)}
+                  </p>
+                </div>
               </div>
-              <div className="flex justify-evenly my-5">
+              <div className="flex items-center">
+                <div className="flex-grow"></div>
                 <button
-                  className="bg-[#E55555] text-white py-2 px-4 rounded-full"
+                  className="w-4 h-4 mb-2"
                   onClick={() => handleDelete(item.basket.id)}
                 >
-                  Remove
-                </button>
-                <button
-                  className="bg-[#F59F50] text-white py-2 px-4 rounded-full"
-                  onClick={() => pay()}
-                >
-                  Checkout
+                  <img src="/bin.png" alt="bin" />
                 </button>
               </div>
             </div>
@@ -115,6 +111,16 @@ export default function Cart({ userId }) {
             Continue Shopping
           </button>
         </>
+      )}
+      {cartItems.data && cartItems.data.length > 0 && (
+        <div className="flex justify-center mt-4">
+          <button
+            className="bg-[#F59F50] text-white py-2 px-4 rounded-full"
+            onClick={() => pay()}
+          >
+            Checkout
+          </button>
+        </div>
       )}
     </>
   );

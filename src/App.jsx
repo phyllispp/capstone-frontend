@@ -9,6 +9,7 @@ import Profile from "./Components/Profile";
 import Search from "./Components/Search";
 import NavBar from "./Components/NavBar";
 import SellerProfile from "./Components/SellerProfile";
+import axios from "axios";
 
 import {
   createBrowserRouter,
@@ -35,7 +36,7 @@ function App() {
       path: "/",
       element: (
         <ProtectedRoute>
-          <Home userId={userId} />
+          <Home userId={userId} axios={axios} />
           <NavBar />
         </ProtectedRoute>
       ),

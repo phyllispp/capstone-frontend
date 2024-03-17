@@ -7,6 +7,7 @@ import { formatDate } from "./dateUtils";
 export default function Cart({ userId }) {
   const fetcher = async (url) => (await axios.get(url)).data;
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   // retrieve item in cart
   const cartItems = useQuery({
@@ -21,6 +22,22 @@ export default function Cart({ userId }) {
       return total + item.basket.discountedPrice * item.stock;
     }, 0) || 0;
   console.log(totalPrice);
+
+  // delete a food item from cart
+  const putRequest = async (url, data) => await axios.put(url, data);
+  const { mutate: deleteBasket } = useMutation({
+    mutationFn: (basketId) => putRequest(`${BASE_URL}/cart/delete/${basketId}`),
+    onSuccess: (data, basketId) => {
+      queryClient.invalidateQueries({ queryKey: ["cartItems"] });
+      queryClient.setQueryData(["cartItems"], (oldQueryData) => {
+        return oldQueryData.data.filter((basket) => basket.id !== basketId);
+      });
+    },
+  });
+
+  const handleDelete = (basketId) => {
+    deleteBasket(basketId);
+  };
 
   // post request for stripe payment
   const postRequest = async (url, data) => await axios.post(url, data);
@@ -67,7 +84,7 @@ export default function Cart({ userId }) {
               <div className="flex justify-evenly my-5">
                 <button
                   className="bg-[#E55555] text-white py-2 px-4 rounded-full"
-                  onClick={() => removeItem(item.basket.id)}
+                  onClick={() => handleDelete(item.basket.id)}
                 >
                   Remove
                 </button>

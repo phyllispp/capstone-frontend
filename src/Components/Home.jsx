@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BASE_URL } from "./Constant";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import { formatDate } from "./dateUtils";
 
-export default function Home({ userId }) {
+export default function Home({ userId, axios }) {
   const fetcher = async (url) => (await axios.get(url)).data;
   const queryClient = useQueryClient();
 
@@ -16,7 +15,7 @@ export default function Home({ userId }) {
   });
   console.log(feeds.data);
 
-  // post request to like a feed
+  //post request to like and unlike a feed
   const postRequest = async (url, data) => await axios.post(url, data);
   const { mutate } = useMutation({
     mutationFn: (feedId) =>
@@ -98,23 +97,21 @@ export default function Home({ userId }) {
   const { mutate: deleteFeed } = useMutation({
     mutationFn: (formData) =>
       putRequest(`${BASE_URL}/feed/comment/delete`, formData),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["feeds"] });
-      queryClient.setQueryData(["feeds"], (oldQueryData) => {
-        console.log(variables);
-        console.log(variables.commentId);
-
-        return oldQueryData.data.map((feed) => {
-          if (feed.id === variables.feedId) {
-            return {
-              ...feed,
-              feedReviews: feed.feedReviews.filter(
-                (comment) => comment.id !== variables.commentId
-              ),
-            };
-          }
-        });
-      });
+    onSuccess: () => {
+      feeds.refetch();
+      // queryClient.invalidateQueries({ queryKey: ["feeds"] });
+      // queryClient.setQueryData(["feeds"], (oldQueryData) => {
+      //   console.log(variables);
+      //   console.log(variables.commentId);
+      //   return oldQueryData.data.map((feed) => {
+      //     return {
+      //       ...feed,
+      //       feedReviews: feed.feedReviews.filter(
+      //         (comment) => comment.id !== variables.commentId
+      //       ),
+      //     };
+      //   });
+      // });
     },
   });
 

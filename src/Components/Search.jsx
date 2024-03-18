@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { BASE_URL } from "./Constant";
-import axios from "axios";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 export default function Search() {
   const [selectedCategoryId, setSelectedCategoryId] = useState(1);

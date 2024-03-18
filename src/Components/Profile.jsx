@@ -1,10 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { BASE_URL } from "./Constant";
-import axios from "axios";
+import { BASE_URL, LOGOUT_URL } from "./Constant";
 import { formatDateTwo } from "./dateUtilsTwo";
+import { formatDate } from "./dateOnlyUtils";
+import { useAuth0 } from "@auth0/auth0-react";
 
-export default function Profile({ userId }) {
-  const fetcher = async (url) => (await axios.get(url)).data;
+export default function Profile({ userId, axiosAuth }) {
+  const { logout } = useAuth0();
+  const fetcher = async (url) => (await axiosAuth.get(url)).data;
 
   // retrieve all orders
   //for each order, show food title, photo, stock(that the user has bought)pickupstarttime, endtime, seller address
@@ -46,6 +48,7 @@ export default function Profile({ userId }) {
                   <div className="text-xs">
                     <p className="mb-1 text-left">{item.basket.title}</p>
                     <p className="mb-1 text-left">
+                      {formatDate(item.basket.pickupStartTime)}{" "}
                       {formatDateTwo(item.basket.pickupStartTime)} to{" "}
                       {formatDateTwo(item.basket.pickupEndTime)}
                     </p>
@@ -57,6 +60,13 @@ export default function Profile({ userId }) {
           </div>
         ))
       )}
+      <button
+        onClick={() => logout({ logoutParams: { returnTo: LOGOUT_URL } })}
+        className="px-4 py-2 mt-2 text-sm font-medium text-white bg-[#F59F50]
+        rounded-full"
+      >
+        Log Out
+      </button>
     </div>
   );
 }

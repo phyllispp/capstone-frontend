@@ -1,15 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BASE_URL } from "./Constant";
 import { useState } from "react";
-import axios from "axios";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { formatDate } from "./dateOnlyUtils";
 import { formatDateTwo } from "./dateUtilsTwo";
 
-export default function FoodDetail({ userId }) {
+export default function FoodDetail({ userId, axiosAuth }) {
   const params = useParams();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const fetcher = async (url) => (await axios.get(url)).data;
+  const fetcher = async (url) => (await axiosAuth.get(url)).data;
   const [errorNotification, setErrorNotification] = useState({
     show: false,
     message: "",
@@ -23,7 +23,7 @@ export default function FoodDetail({ userId }) {
 
   // add a basket to cart
 
-  const postRequest = async (url, data) => await axios.post(url, data);
+  const postRequest = async (url, data) => await axiosAuth.post(url, data);
   const { mutate } = useMutation({
     mutationFn: (formData) => postRequest(`${BASE_URL}/cart`, formData),
     onSuccess: (res) => {
@@ -117,7 +117,8 @@ export default function FoodDetail({ userId }) {
               <img src="/clock.png" alt="clock" className="w-4 h-4 mb-2" />
               <div className="text-xs font-light ml-2">
                 <p>
-                  Pick-up: {formatDateTwo(basket.pickupStartTime)} to{" "}
+                  Pick-up: {formatDate(basket.pickupStartTime)}{" "}
+                  {formatDateTwo(basket.pickupStartTime)} to{" "}
                   {formatDateTwo(basket.pickupEndTime)}
                 </p>
               </div>

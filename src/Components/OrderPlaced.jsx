@@ -1,11 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { BASE_URL } from "./Constant";
-import axios from "axios";
 
-export default function OrderPlaced({ userId }) {
+export default function OrderPlaced({ userId, axiosAuth }) {
   const navigate = useNavigate();
-  const fetcher = async (url) => (await axios.get(url)).data;
+  const fetcher = async (url) => (await axiosAuth.get(url)).data;
 
   //retrieve latest order info
   const latestOrder = useQuery({
@@ -14,13 +13,17 @@ export default function OrderPlaced({ userId }) {
   });
   console.log(latestOrder.data);
 
-  let ghgSavings = 0;
+  // let ghgSavings = 0;
 
-  ghgSavings = latestOrder.data?.orderedItems?.reduce((total, item) => {
-    const basket = item.basket;
-    return total + item.stock * basket.weightPerUnit * 3.8;
-  }, 0);
-  console.log(ghgSavings);
+  // ghgSavings = latestOrder?.data?.orderedItems?.reduce((total, item) => {
+  //   const basket = item?.basket;
+  //   return total + item.stock * basket.weightPerUnit * 3.8;
+  // }, 0);
+  // console.log(ghgSavings);
+
+  if (latestOrder.isLoading) {
+    return <div>Loading your order...</div>;
+  }
 
   return (
     <>
@@ -40,10 +43,15 @@ export default function OrderPlaced({ userId }) {
           className="object-scale-up h-48 w-48 mx-auto my-10"
         />
         <p className="text-[#AEAEAE] font-bold my-10">
-          You&apos;ve helped save {ghgSavings} g of GHG emissions!
+          You&apos;ve helped save{" "}
+          {latestOrder?.data?.orderedItems?.reduce((total, item) => {
+            const basket = item.basket;
+            return total + item.stock * basket.weightPerUnit * 3.8;
+          }, 0)}{" "}
+          g of GHG emissions!
         </p>
         <button
-          onClick={() => navigate(`/`)}
+          onClick={() => navigate(`/profile`)}
           className="bg-[#F59F50] text-white py-2 px-4 rounded-full"
         >
           {" "}

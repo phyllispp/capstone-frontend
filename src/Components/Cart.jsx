@@ -1,11 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BASE_URL } from "./Constant";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { formatDate } from "./dateOnlyUtils";
 import { formatDateTwo } from "./dateUtilsTwo";
 
-export default function Cart({ userId }) {
-  const fetcher = async (url) => (await axios.get(url)).data;
+export default function Cart({ userId, axiosAuth }) {
+  const fetcher = async (url) => (await axiosAuth.get(url)).data;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -24,7 +24,7 @@ export default function Cart({ userId }) {
   console.log(totalPrice);
 
   // delete a food item from cart
-  const putRequest = async (url, data) => await axios.put(url, data);
+  const putRequest = async (url, data) => await axiosAuth.put(url, data);
   const { mutate: deleteBasket } = useMutation({
     mutationFn: (basketId) => putRequest(`${BASE_URL}/cart/delete/${basketId}`),
     onSuccess: (data, basketId) => {
@@ -40,7 +40,7 @@ export default function Cart({ userId }) {
   };
 
   // post request for stripe payment
-  const postRequest = async (url, data) => await axios.post(url, data);
+  const postRequest = async (url, data) => await axiosAuth.post(url, data);
   const { mutate: pay } = useMutation({
     mutationFn: () =>
       postRequest(`${BASE_URL}/pay`, {
@@ -62,11 +62,10 @@ export default function Cart({ userId }) {
         </div>
       </div>
       <br />
-      Copy
       {cartItems.data && cartItems.data.length > 0 ? (
-        <div className="flex items-start p-2 ml-2 bg-white shadow rounded mb-2">
+        <div className="flex flex-col items-center p-2 ml-2 bg-white shadow rounded mb-2">
           {cartItems.data.map((item) => (
-            <div key={item.basket.id} className="flex items-center w-full">
+            <div key={item.basket.id} className="flex items-center w-full mb-4">
               <img
                 src={item.basket.photo}
                 alt={item.basket.title}
@@ -74,10 +73,11 @@ export default function Cart({ userId }) {
               />
               <div className="text-left flex-grow">
                 <p className="text-xs">{item.basket.title}</p>
-                <p className="text-xs">${totalPrice}</p>
+                <p className="text-xs">${item.basket.discountedPrice}</p>
                 <div className="text-xs font-light">
                   <p>
-                    Pick-up: {formatDateTwo(item.basket.pickupStartTime)} to{" "}
+                    Pick-up: {formatDate(item.basket.pickupStartTime)}{" "}
+                    {formatDateTwo(item.basket.pickupStartTime)} to{" "}
                     {formatDateTwo(item.basket.pickupEndTime)}
                   </p>
                 </div>
@@ -112,6 +112,7 @@ export default function Cart({ userId }) {
           </button>
         </>
       )}
+      <p>Your total price is ${totalPrice}</p>
       {cartItems.data && cartItems.data.length > 0 && (
         <div className="flex justify-center mt-4">
           <button

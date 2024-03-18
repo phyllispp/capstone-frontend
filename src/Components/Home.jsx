@@ -3,8 +3,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BASE_URL } from "./Constant";
 import { Link } from "react-router-dom";
 import { formatDate } from "./dateUtils";
+import axios from "axios";
 
-export default function Home({ userId, axios }) {
+export default function Home({ userId, axiosAuth }) {
   const fetcher = async (url) => (await axios.get(url)).data;
   const queryClient = useQueryClient();
 
@@ -16,7 +17,7 @@ export default function Home({ userId, axios }) {
   console.log(feeds.data);
 
   //post request to like a feed
-  const postRequest = async (url, data) => await axios.post(url, data);
+  const postRequest = async (url, data) => await axiosAuth.post(url, data);
   const { mutate } = useMutation({
     mutationFn: (feedId) =>
       postRequest(`${BASE_URL}/feed/like`, {
@@ -93,7 +94,7 @@ export default function Home({ userId, axios }) {
   };
 
   // delete a comment
-  const putRequest = async (url, data) => await axios.put(url, data);
+  const putRequest = async (url, data) => await axiosAuth.put(url, data);
   const { mutate: deleteFeed } = useMutation({
     mutationFn: (formData) =>
       putRequest(`${BASE_URL}/feed/comment/delete`, formData),

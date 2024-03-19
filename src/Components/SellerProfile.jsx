@@ -1,38 +1,69 @@
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "./Constant";
 import axios from "axios";
 import { useParams, useNavigate, Link } from "react-router-dom";
 
-export default function SellerProfile() {
+export default function SellerProfile({ userId, axiosAuth }) {
   const params = useParams();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const fetcher = async (url) => (await axios.get(url)).data;
 
+  //get seller profile
+  const fetcher = async (url) => (await axios.get(url)).data;
   const seller = useQuery({
     queryKey: ["seller", `${BASE_URL}/category/seller/${params.sellerId}`],
     queryFn: () => fetcher(`${BASE_URL}/category/seller/${params.sellerId}`),
   });
 
+  //get seller reviews
+  const reviews = useQuery({
+    queryKey: ["reviews", `${BASE_URL}/category/reviews/${params.sellerId}`],
+    queryFn: () => fetcher(`${BASE_URL}/category/reviews/${params.sellerId}`),
+  });
+  console.log(reviews.data);
+
+  //add a review
   const [reviewText, setReviewText] = useState("");
-  const [reviews, setReviews] = useState([]);
+  const postRequest = async (url, data) => await axiosAuth.post(url, data);
+  const { mutate: review } = useMutation({
+    mutationFn: (reviewText) =>
+      postRequest(`${BASE_URL}/category/comment/${params.sellerId}/${userId}`, {
+        reviewText,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [
+          "reviews",
+          `${BASE_URL}/category/reviews/${params.sellerId}`,
+        ],
+      });
+    },
+  });
 
   const handleReviewSubmit = () => {
-    // implement logic to submit review to server
-    console.log("Review submitted:", reviewText);
-    const newReview = {
-      id: Date.now(),
-      text: reviewText,
-    };
-    setReviews((prevReviews) => [...prevReviews, newReview]);
+    console.log(reviewText);
+    review(reviewText);
     setReviewText("");
   };
 
+  //delete a review
+  const deleteRequest = async (url, data) => await axiosAuth.delete(url, data);
+  const { mutate: deleteReview } = useMutation({
+    mutationFn: (reviewId) =>
+      deleteRequest(`${BASE_URL}/category/delete/${reviewId}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [
+          "reviews",
+          `${BASE_URL}/category/reviews/${params.sellerId}`,
+        ],
+      });
+    },
+  });
+
   const handleReviewDelete = (reviewId) => {
-    setReviews((prevReviews) =>
-      prevReviews.filter((review) => review.id !== reviewId)
-    );
+    deleteReview(reviewId);
   };
 
   return (
@@ -76,12 +107,14 @@ export default function SellerProfile() {
         <p className="text-[#9EB97D] text-sm font-semibold text-left mt-2">
           Reviews:
         </p>
-        {reviews.map((review) => (
+        {reviews?.data?.map((review) => (
           <div
             key={review.id}
             className="flex items-center justify-between mt-2"
           >
-            <p className="text-sm text-left">{review.text}</p>
+            <p className="text-sm text-left">
+              {review.userId}: {review.review}
+            </p>
             <button
               onClick={() => handleReviewDelete(review.id)}
               className="text-xs text-[#E55555]"

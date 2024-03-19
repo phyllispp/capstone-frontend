@@ -5,18 +5,32 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 
 export default function Search() {
+  const [userLocation, setUserLocation] = useState({
+    latitude: null,
+    longitude: null,
+  });
   const [selectedCategoryId, setSelectedCategoryId] = useState(1);
   const MAX_DISTANCE = 20;
   const [distance, setDistance] = useState(MAX_DISTANCE);
 
-  const fetcher = async (url) => (await axios.get(url)).data;
+  const fetcher = async (url, userLocation) => {
+    const { latitude, longitude } = userLocation;
+    const fullUrl = `${url}?latitude=${latitude}&longitude=${longitude}`;
+    return (await axios.get(fullUrl)).data;
+  };
 
   // retrieve all sellers
   const sellers = useQuery({
-    queryKey: ["sellers", selectedCategoryId],
+    queryKey: ["sellers", selectedCategoryId, userLocation],
     queryFn: () =>
-      fetcher(`${BASE_URL}/category/${selectedCategoryId}/sellers`),
-    enabled: !!selectedCategoryId,
+      fetcher(
+        `${BASE_URL}/category/${selectedCategoryId}/sellers`,
+        userLocation
+      ),
+    enabled:
+      !!selectedCategoryId &&
+      userLocation.latitude !== null &&
+      userLocation.longitude !== null,
   });
 
   // filter sellers by distance
@@ -39,10 +53,10 @@ export default function Search() {
     const getLocation = () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
-          const userLocation = {
-            type: "Point",
-            coordinates: [position.coords.longitude, position.coords.latitude],
-          };
+          setUserLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
           console.log(userLocation);
         });
       }
@@ -56,7 +70,7 @@ export default function Search() {
         {/* bakery, restaurant and supermarket button */}
         <button
           onClick={() => handleCategoryClick(1)}
-          className="bg-[#EFEEDE] py-6 px-5 rounded-md flex flex-col items-center w-24 h-24 text-xs font-medium text-[#F59F50] focus:bg-[#F59F50] focus:text-[#EFEEDE] focus:outline-none"
+          className=" bg-[#EFEEDE] py-6 px-5 rounded-md flex flex-col items-center w-24 h-24 text-xs font-medium text-[#F59F50] focus:bg-[#F59F50] focus:text-[#EFEEDE] focus:outline-none "
         >
           <img src="bakery.png" alt="bakery" className="h-8 w-8" />
           <span className="mt-2">Bakery</span>
@@ -64,7 +78,7 @@ export default function Search() {
 
         <button
           onClick={() => handleCategoryClick(2)}
-          className="bg-[#EFEEDE] py-6 px-5 rounded-md flex flex-col items-center w-24 h-24 text-xs font-medium text-[#F59F50] focus:bg-[#F59F50] focus:text-[#EFEEDE] focus:outline-none"
+          className=" bg-[#EFEEDE] py-6 px-5 rounded-md flex flex-col items-center w-24 h-24 text-xs font-medium text-[#F59F50] focus:bg-[#F59F50] focus:text-[#EFEEDE] focus:outline-none"
         >
           <img src="restaurant.png" alt="restaurant" className="h-8 w-8" />
           <span className="mt-2">Restaurant</span>
@@ -72,14 +86,15 @@ export default function Search() {
 
         <button
           onClick={() => handleCategoryClick(3)}
-          className="bg-[#EFEEDE] py-6 px-5 rounded-md flex flex-col items-center w-24 h-24 text-xs font-medium text-[#F59F50] focus:bg-[#F59F50] focus:text-[#EFEEDE] focus:outline-none"
+          className=" bg-[#EFEEDE] py-6 px-5 rounded-md flex flex-col items-center w-24 h-24 text-xs font-medium text-[#F59F50] focus:bg-[#F59F50] focus:text-[#EFEEDE] focus:outline-none"
         >
           <img src="supermarket.png" alt="supermarket" className="h-8 w-8" />
           <span className="mt-2">Supermarket</span>
         </button>
       </div>
       {/* range slider */}
-      <div className="flex items-center py-4">
+
+      <div className="flex justify-center items-center py-4">
         <label htmlFor="distance" className="mr-2 text-xs">
           Distance:
         </label>
@@ -93,6 +108,7 @@ export default function Search() {
         />
         <span className="ml-2 text-xs">{distance} km</span>
       </div>
+
       {/* sellers */}
       {filteredSellers?.map((seller) => (
         <div key={seller.id}>

@@ -3,6 +3,7 @@ import { BASE_URL } from "./Constant";
 import { useNavigate } from "react-router-dom";
 import { formatDate } from "./dateOnlyUtils";
 import { formatDateTwo } from "./dateUtilsTwo";
+import { Link } from "react-router-dom";
 
 export default function Cart({ userId, axiosAuth }) {
   const fetcher = async (url) => (await axiosAuth.get(url)).data;
@@ -66,15 +67,19 @@ export default function Cart({ userId, axiosAuth }) {
         <div className="flex flex-col items-center p-2 ml-2 bg-white shadow rounded mb-2">
           {cartItems.data.map((item) => (
             <div key={item.basket.id} className="flex items-center w-full mb-4">
-              <img
-                src={item.basket.photo}
-                alt={item.basket.title}
-                className="w-12 h-12 object-cover mr-2"
-              />
+              <Link to={`/search/basket/${item.basket.id}`}>
+                <img
+                  src={item.basket.photo}
+                  alt={item.basket.title}
+                  className="w-12 h-12 object-cover mr-2"
+                />
+              </Link>
               <div className="text-left flex-grow">
-                <p className="text-xs">{item.basket.title}</p>
-                <p className="text-xs">${item.basket.discountedPrice}</p>
-                <div className="text-xs font-light">
+                <p className="text-sm">{item.basket.title}</p>
+                <p className="text-gray-500 text-xs">
+                  ${item.basket.discountedPrice}
+                </p>
+                <div className="text-xs  text-gray-500">
                   <p>
                     Pick-up: {formatDate(item.basket.pickupStartTime)}{" "}
                     {formatDateTwo(item.basket.pickupStartTime)} to{" "}

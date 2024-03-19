@@ -105,7 +105,7 @@ function App() {
       path: "/search/seller/:sellerId",
       element: (
         <>
-          <SellerProfile />
+          <SellerProfile userId={userId} axiosAuth={axiosAuth} />
           <NavBar />
         </>
       ),

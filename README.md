@@ -1,8 +1,8 @@
-# Rocket Academy Coding Bootcamp: Project 3 - Full Stack Application
+Food Rescue
 
-https://bc.rocketacademy.co/3-backend/3.p-full-stack-app-express
+This is the capstone project of Hongyu and Karen at Rocket Academy.
 
-## Available Scripts
+The inspiration to build this site came from Too Good To Go, an application in Europe and US that connects customers to restaurants and stores that have surplus unsold food. Our app is based in Hong Kong, with dummy seller data sourced from google map.
 
 This project was created using with Vitejs. In the project directory, please run the following commands:
 
@@ -10,6 +10,6 @@ This project was created using with Vitejs. In the project directory, please run
 
 `npm run dev`
 
-The second command will run the app To see the rendered output please open http://localhost:5173 in the browser of your choice, EG: Google Chrome.
+For stripe payment, you could use 4242 4242 4242 4242 as the credit card number
 
-The page will reload when you make changes. You may also see any lint errors in the console.
+To access the backend of this project, you can click here: https://github.com/phyllispp/capstone-backend

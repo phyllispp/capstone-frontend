@@ -17,18 +17,13 @@ import { useAuth0 } from "@auth0/auth0-react";
 import {
   createBrowserRouter,
   RouterProvider,
+  useNavigate,
   Navigate,
 } from "react-router-dom";
 
 function App() {
   const [userId, setUserId] = useState("");
   const { getAccessTokenSilently, isAuthenticated, user } = useAuth0();
-
-  let username;
-  if (isAuthenticated && user) {
-    username = user["https://localhost:5173/username"];
-  }
-  console.log(username);
 
   const { data: accessToken } = useQuery({
     queryKey: ["accessToken"],
@@ -57,9 +52,9 @@ function App() {
 
   console.log(isAuthenticated);
 
-  // const ProtectedRoute = ({ children }) => {
-  //   return isAuthenticated ? children : <Navigate to="/login" />;
-  // };
+  const ProtectedRoute = ({ children }) => {
+    return isAuthenticated ? children : <Navigate to="/login" />;
+  };
   const router = createBrowserRouter([
     {
       path: "/login",
@@ -68,73 +63,89 @@ function App() {
     {
       path: "/",
       element: (
-        <>
-          <Home userId={userId} axiosAuth={axiosAuth} />
-          <NavBar />
-        </>
+        <ProtectedRoute>
+          <>
+            <Home userId={userId} axiosAuth={axiosAuth} />
+            <NavBar />
+          </>
+        </ProtectedRoute>
       ),
     },
     {
       path: "/favorites",
       element: (
-        <>
-          <Favorites />
-          <NavBar />
-        </>
+        <ProtectedRoute>
+          <>
+            <Favorites />
+            <NavBar />
+          </>
+        </ProtectedRoute>
       ),
     },
     {
       path: "/search",
       element: (
-        <>
-          <Search axiosAuth={axiosAuth} />
-          <NavBar />
-        </>
+        <ProtectedRoute>
+          <>
+            <Search axiosAuth={axiosAuth} />
+            <NavBar />
+          </>
+        </ProtectedRoute>
       ),
     },
     {
       path: "/search/basket/:basketId",
       element: (
-        <>
-          <FoodDetail userId={userId} axiosAuth={axiosAuth} />
-          <NavBar />
-        </>
+        <ProtectedRoute>
+          <>
+            <FoodDetail userId={userId} axiosAuth={axiosAuth} />
+            <NavBar />
+          </>
+        </ProtectedRoute>
       ),
     },
     {
       path: "/search/seller/:sellerId",
       element: (
-        <>
-          <SellerProfile userId={userId} axiosAuth={axiosAuth} />
-          <NavBar />
-        </>
+        <ProtectedRoute>
+          <>
+            <SellerProfile userId={userId} axiosAuth={axiosAuth} />
+            <NavBar />
+          </>
+        </ProtectedRoute>
       ),
     },
     {
       path: "/cart",
       element: (
-        <>
-          <Cart userId={userId} axiosAuth={axiosAuth} />
-          <NavBar />
-        </>
+        <ProtectedRoute>
+          <>
+            <Cart userId={userId} axiosAuth={axiosAuth} />
+            <NavBar />
+          </>
+        </ProtectedRoute>
       ),
     },
     {
       path: "/order",
       element: (
-        <>
-          <OrderPlaced userId={userId} axiosAuth={axiosAuth} />
-          <NavBar />
-        </>
+        <ProtectedRoute>
+          <>
+            <OrderPlaced userId={userId} axiosAuth={axiosAuth} />
+            <NavBar />
+          </>
+        </ProtectedRoute>
       ),
     },
     {
       path: "/profile",
       element: (
-        <>
-          <Profile userId={userId} axiosAuth={axiosAuth} />
-          <NavBar />
-        </>
+        <ProtectedRoute>
+          <>
+            <Profile userId={userId} axiosAuth={axiosAuth} />
+            <NavBar />
+          </>
+        </ProtectedRoute>
       ),
     },
   ]);

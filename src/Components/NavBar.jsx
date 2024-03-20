@@ -9,7 +9,7 @@ export default function NavBar() {
         <button
           type="button"
           className="inline-flex flex-col items-center justify-center px-5"
-          onClick={() => navigate("/")} // Navigate to Home
+          onClick={() => navigate("/home")} // Navigate to Home
         >
           <img src="/home.png" alt="home" className="h-6 w-6" />
         </button>

@@ -39,14 +39,6 @@ export default function Search() {
       distance === MAX_DISTANCE ||
       (store.distance / 1000).toFixed(1) <= distance
   );
-  console.log(filteredSellers);
-
-  // change categoryId with button click
-  const handleCategoryClick = (categoryId) => {
-    setSelectedCategoryId(categoryId);
-  };
-
-  console.log(sellers.data);
 
   // get the user's location
   useEffect(() => {
@@ -69,7 +61,9 @@ export default function Search() {
       <div className="flex justify-around">
         {/* bakery, restaurant and supermarket button */}
         <button
-          onClick={() => handleCategoryClick(1)}
+          onClick={() => {
+            setSelectedCategoryId(1);
+          }}
           className=" bg-[#EFEEDE] py-6 px-5 rounded-md flex flex-col items-center w-24 h-24 text-xs font-medium text-[#F59F50] focus:bg-[#F59F50] focus:text-[#EFEEDE] focus:outline-none "
         >
           <img src="bakery.png" alt="bakery" className="h-8 w-8" />
@@ -77,7 +71,9 @@ export default function Search() {
         </button>
 
         <button
-          onClick={() => handleCategoryClick(2)}
+          onClick={() => {
+            setSelectedCategoryId(2);
+          }}
           className=" bg-[#EFEEDE] py-6 px-5 rounded-md flex flex-col items-center w-24 h-24 text-xs font-medium text-[#F59F50] focus:bg-[#F59F50] focus:text-[#EFEEDE] focus:outline-none"
         >
           <img src="restaurant.png" alt="restaurant" className="h-8 w-8" />
@@ -85,7 +81,9 @@ export default function Search() {
         </button>
 
         <button
-          onClick={() => handleCategoryClick(3)}
+          onClick={() => {
+            setSelectedCategoryId(3);
+          }}
           className=" bg-[#EFEEDE] py-6 px-5 rounded-md flex flex-col items-center w-24 h-24 text-xs font-medium text-[#F59F50] focus:bg-[#F59F50] focus:text-[#EFEEDE] focus:outline-none"
         >
           <img src="supermarket.png" alt="supermarket" className="h-8 w-8" />

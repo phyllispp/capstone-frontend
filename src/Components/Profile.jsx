@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { BASE_URL, LOGOUT_URL } from "./Constant";
+import { BASE_URL } from "./Constant";
 import { formatDateTwo } from "./dateUtilsTwo";
 import { formatDate } from "./dateOnlyUtils";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -75,7 +75,9 @@ export default function Profile({ userId, axiosAuth }) {
         ))
       )}
       <button
-        onClick={() => logout({ logoutParams: { returnTo: LOGOUT_URL } })}
+        onClick={() =>
+          logout({ logoutParams: { returnTo: window.location.origin } })
+        }
         className="px-4 py-2 mt-2 text-sm font-medium text-white bg-[#F59F50]
         rounded-full"
       >

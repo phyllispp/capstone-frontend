@@ -36,10 +36,6 @@ export default function Cart({ userId, axiosAuth }) {
     },
   });
 
-  const handleDelete = (basketId) => {
-    deleteBasket(basketId);
-  };
-
   // post request for stripe payment
   const postRequest = async (url, data) => await axiosAuth.post(url, data);
   const { mutate: pay } = useMutation({
@@ -74,7 +70,7 @@ export default function Cart({ userId, axiosAuth }) {
                   className="w-12 h-12 object-cover mr-2"
                 />
               </Link>
-              <div className="text-left flex-grow">
+              <div className="text-left flex-grow ml-2">
                 <p className="text-sm">{item.basket.title}</p>
                 <p className="text-gray-500 text-xs">
                   ${item.basket.discountedPrice}
@@ -91,7 +87,9 @@ export default function Cart({ userId, axiosAuth }) {
                 <div className="flex-grow"></div>
                 <button
                   className="w-4 h-4 mb-2"
-                  onClick={() => handleDelete(item.basket.id)}
+                  onClick={() => {
+                    deleteBasket(item.basket.id);
+                  }}
                 >
                   <img src="/bin.png" alt="bin" />
                 </button>

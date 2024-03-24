@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BASE_URL } from "./Constant";
-import { Link } from "react-router-dom";
 import { formatDate } from "./dateUtils";
 import axios from "axios";
 
@@ -29,10 +28,6 @@ export default function Home({ userId, axiosAuth }) {
     },
   });
 
-  const handleLike = (feedId) => {
-    mutate(feedId);
-  };
-
   // post request to insert a comment
   const { mutate: commentFeed } = useMutation({
     mutationFn: (formData) =>
@@ -46,10 +41,6 @@ export default function Home({ userId, axiosAuth }) {
   const [comment, setComment] = useState({});
   console.log(comment);
 
-  const handleCommentChange = (feedId, value) => {
-    setComment((prev) => ({ ...prev, [feedId]: value }));
-  };
-
   const handleSubmit = (feedId, e) => {
     e.preventDefault();
     const content = comment[feedId] || "";
@@ -59,19 +50,14 @@ export default function Home({ userId, axiosAuth }) {
   };
 
   // delete a comment
-  const putRequest = async (url, data) => await axiosAuth.put(url, data);
+  const deleteRequest = async (url, data) => await axiosAuth.delete(url, data);
   const { mutate: deleteFeed } = useMutation({
-    mutationFn: (formData) =>
-      putRequest(`${BASE_URL}/feed/comment/delete`, formData),
+    mutationFn: ({ feedId, commentId }) =>
+      deleteRequest(`${BASE_URL}/feed/${feedId}/comment/${commentId}/delete`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["feeds"] });
     },
   });
-
-  const handleDeleteComment = (feedId, commentId) => {
-    deleteFeed({ feedId: feedId, commentId: commentId });
-    console.log(commentId);
-  };
 
   return (
     <div className="flex flex-col min-h-screen ">
@@ -116,7 +102,12 @@ export default function Home({ userId, axiosAuth }) {
             <div className="flex justify-start">
               {/* render users like */}
               <div className="flex items-center">
-                <button onClick={() => handleLike(feed.id)} className="mr-2">
+                <button
+                  onClick={() => {
+                    mutate(feed.id);
+                  }}
+                  className="mr-2"
+                >
                   <img src="like.png" alt="like" className="h-8 w-8" />
                 </button>
                 <p className="text-gray-500 text-sm font-light">
@@ -136,7 +127,9 @@ export default function Home({ userId, axiosAuth }) {
                       {comment.userId}: {comment.content}
                     </p>
                     <button
-                      onClick={() => handleDeleteComment(feed.id, comment.id)}
+                      onClick={() => {
+                        deleteFeed({ feedId: feed.id, commentId: comment.id });
+                      }}
                       className="text-xs text-[#E55555]"
                       style={{ marginLeft: "auto" }}
                     >
@@ -153,7 +146,12 @@ export default function Home({ userId, axiosAuth }) {
               <input
                 type="text"
                 value={comment[feed.id] || ""}
-                onChange={(e) => handleCommentChange(feed.id, e.target.value)}
+                onChange={(e) => {
+                  setComment((prev) => ({
+                    ...prev,
+                    [feed.id]: e.target.value,
+                  }));
+                }}
                 placeholder="Write a comment..."
                 className="border border-gray-300 rounded-md p-1 mt-2 flex-grow mr-2 text-sm"
                 style={{ width: "10rem" }}

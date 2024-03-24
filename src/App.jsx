@@ -10,7 +10,7 @@ import Search from "./Components/Search";
 import NavBar from "./Components/NavBar";
 import SellerProfile from "./Components/SellerProfile";
 import axios from "axios";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { BASE_URL } from "./Components/Constant";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -18,7 +18,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 function App() {
   const [userId, setUserId] = useState("");
-  const { getAccessTokenSilently, isAuthenticated, user } = useAuth0();
+  const { getAccessTokenSilently, isAuthenticated, user, loginWithRedirect } =
+    useAuth0();
 
   const { data: accessToken } = useQuery({
     queryKey: ["accessToken"],

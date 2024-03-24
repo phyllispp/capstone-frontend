@@ -2,12 +2,11 @@ import { useState } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "./Constant";
 import axios from "axios";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 
 export default function SellerProfile({ userId, axiosAuth }) {
   const params = useParams();
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
 
   //get seller profile
   const fetcher = async (url) => (await axios.get(url)).data;
@@ -62,10 +61,6 @@ export default function SellerProfile({ userId, axiosAuth }) {
     },
   });
 
-  const handleReviewDelete = (reviewId) => {
-    deleteReview(reviewId);
-  };
-
   return (
     <>
       <Link
@@ -116,7 +111,9 @@ export default function SellerProfile({ userId, axiosAuth }) {
               {review.userId}: {review.review}
             </p>
             <button
-              onClick={() => handleReviewDelete(review.id)}
+              onClick={() => {
+                deleteReview(review.id);
+              }}
               className="text-xs text-[#E55555]"
             >
               x

@@ -10,16 +10,9 @@ export default function OrderPlaced({ userId, axiosAuth }) {
   const latestOrder = useQuery({
     queryKey: ["latestOrder"],
     queryFn: () => fetcher(`${BASE_URL}/order/latest/${userId}`),
+    enabled: !!userId,
   });
   console.log(latestOrder.data);
-
-  // let ghgSavings = 0;
-
-  // ghgSavings = latestOrder?.data?.orderedItems?.reduce((total, item) => {
-  //   const basket = item?.basket;
-  //   return total + item.stock * basket.weightPerUnit * 3.8;
-  // }, 0);
-  // console.log(ghgSavings);
 
   if (latestOrder.isLoading) {
     return <div>Loading your order...</div>;

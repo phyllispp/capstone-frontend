@@ -1,15 +1,16 @@
-Food Rescue
+# Food Rescue
 
-This is the capstone project of Hongyu and Karen at Rocket Academy.
+## Introduction
 
-The inspiration to build this site came from Too Good To Go, an application in Europe and US that connects customers to restaurants and stores that have surplus unsold food. Our app is based in Hong Kong, with dummy seller data sourced from google map.
+Welcome to the capstone project of Hongyu and Karen at Rocket Academy! "Food Rescue" is inspired by "Too Good To Go," an application operating in Europe and the US that connects customers to restaurants and stores with surplus unsold food. Our mission is to bring this sustainable and economical concept to Hong Kong, featuring dummy seller data sourced from Google Maps.
 
-This project was created using with Vitejs. In the project directory, please run the following commands:
+## Installation and Setup
 
-`npm install`
+This project utilizes Vitejs for an optimal development experience. To get started, clone the repository and run the following commands within the project directory:
 
-`npm run dev`
+```bash
+npm install   # Installs the project dependencies
+npm run dev   # Starts the development server
+```
 
-For stripe payment, you could use 4242 4242 4242 4242 as the credit card number
-
-To access the backend of this project, you can click here: https://github.com/phyllispp/capstone-backend
+For testing payment functionalities, use the following dummy credit card number: 4242 4242 4242 4242
